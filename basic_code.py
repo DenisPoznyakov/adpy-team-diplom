@@ -2,6 +2,7 @@ from random import randrange
 
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
@@ -26,10 +27,25 @@ token = input('Token: ')
 
 vk = vk_api.VkApi(token=token)
 longpoll = VkLongPoll(vk)
+keyboard = VkKeyboard(one_time=False)
 
 
 def write_msg(user_id, message):
-    vk.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7),})
+    vk.method('messages.send', {'user_id': user_id,
+                                'message': message,
+                                'random_id': randrange(10 ** 7),
+                                'keyboard': keyboard.get_keyboard()
+                                })
+
+
+keyboard.add_button('<<<', color=VkKeyboardColor.PRIMARY)
+keyboard.add_button('>>>', color=VkKeyboardColor.PRIMARY)
+keyboard.add_line()
+keyboard.add_button('Добавить в избранные', color=VkKeyboardColor.POSITIVE)
+keyboard.add_button('Избранные', color=VkKeyboardColor.SECONDARY)
+keyboard.add_line()
+keyboard.add_button('Добавить в черный список', color=VkKeyboardColor.NEGATIVE)
+keyboard.add_button('Черный список', color=VkKeyboardColor.SECONDARY)
 
 
 if __name__ == '__main__':
