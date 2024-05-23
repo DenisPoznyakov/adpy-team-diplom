@@ -14,7 +14,6 @@ class User(Base):
     last_name = sq.Column(sq.String(length=50), nullable=False)
     city = sq.Column(sq.String(length=20), nullable=False)
     age = sq.Column(sq.Integer, nullable=False)
-    gender = sq.Column(sq.String(length=10), nullable=False)
 
 
 class Favorites(Base):
@@ -41,16 +40,6 @@ class UserFavorites(Base):
     favorites = relationship(Favorites, backref='user_favorites')
 
 
-class Photos(Base):
-    __tablename__ = 'photos'
-
-    id = sq.Column(sq.Integer, primary_key=True)
-    favorite_id = sq.Column(sq.Integer, sq.ForeignKey(Favorites.id), nullable=False)
-    link = sq.Column(sq.String(length=100), unique=True, nullable=False)
-
-    favorites = relationship(Favorites, backref='photos')
-
-
 class BlackList(Base):
     __tablename__ = 'blacklist'
 
@@ -70,13 +59,12 @@ class UserBlackList(Base):
 
 
 class UserVK:
-    def __init__(self, user_id, first_name, last_name, city, age, gender):
+    def __init__(self, user_id, first_name, last_name, city, age):
         self.user_id = user_id
         self.first_name = first_name
         self.last_name = last_name
         self.city = city
         self.age = age
-        self.gender = gender
 
 
 class FavoriteVK:
@@ -85,8 +73,3 @@ class FavoriteVK:
         self.first_name = first_name
         self.last_name = last_name
         self.link = link
-
-
-class BlacklistVK:
-    def __init__(self, user_id):
-        self.user_id = user_id
