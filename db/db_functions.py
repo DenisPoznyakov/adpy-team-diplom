@@ -57,6 +57,21 @@ def add_or_del_favorite(user, favorite):
                 sess.commit()
 
 
+def check_user_in_favorites(user_id, favorite_id):
+    """Проверяет есть ли пользователь в избранных"""
+    with session() as sess:
+        check_favorites = sess.query(Favorites).filter(Favorites.user_id == favorite_id).first()
+        if check_favorites:
+            us_id = sess.query(User.id).filter(User.user_id == user_id).first()[0]
+            fv_id = sess.query(Favorites.id).filter(Favorites.user_id == favorite_id).first()[0]
+            check_user_favorites = sess.query(UserFavorites).filter((UserFavorites.user_id == us_id) &
+                                                                    (UserFavorites.favorite_id == fv_id)).first()
+            if check_user_favorites:
+                return True
+            return False
+        return False
+
+
 def check_user_in_blacklist(user_id, blacklist_id):
     """Проверяет есть ли пользователь в черном списке"""
     with session() as sess:

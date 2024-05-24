@@ -41,16 +41,18 @@ def get_age(user_id):
     """получение возраста пользователя, если не в правильном формате или не указан, то берется 25 лет"""
     getting_api = vk.get_api()
     info = getting_api.users.get(user_ids=user_id, fields='bdate')[0]
-    bdate = info['bdate']
-    date_list = bdate.split('.')
-    if len(date_list) == 3:
-        year = int(date_list[2])
-        year_now = int(datetime.date.today().year)
-        age = year_now - year
-        return age
-    elif len(date_list) == 2 or bdate not in info:
-        age = 25
-        return age
+    bdate = info.get('bdate')
+    if bdate:
+        date_list = bdate.split('.')
+        if len(date_list) == 3:
+            year = int(date_list[2])
+            year_now = int(datetime.date.today().year)
+            age = year_now - year
+            return age
+        elif len(date_list) == 2:
+            age = 25
+            return age
+    return 25
 
 
 def find_user(user_id):

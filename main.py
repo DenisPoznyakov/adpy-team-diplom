@@ -4,7 +4,7 @@ from vk_api.longpoll import VkEventType
 
 from db.models import UserVK, FavoriteVK
 from db.db_functions import (create_tables, add_user, add_or_del_favorite, add_blacklist,
-                             check_user_in_blacklist, get_favorites)
+                             check_user_in_blacklist, get_favorites, check_user_in_favorites)
 from api.api_functions import find_user, get_user_name, get_city, get_age, get_user_photos
 from api.api import vk, longpoll, keyboard
 
@@ -58,10 +58,10 @@ if __name__ == '__main__':
                             attachments = get_user_photos(tmp_id) # формируем список фото
                             write_msg(user_id, tmp_message)
                         else:
-                            write_msg(user_id, f'{tmp_first_name} {tmp_last_name} у Вас в черном списке')
+                            write_msg(user_id, f'{tmp_first_name} {tmp_last_name} у Вас в черном списке.')
 
                     except StopIteration:  # если список закончился
-                        write_msg(user_id, "Вы пролистали весь список.\nЧтобы начать заново нажмите: 'Начать сначала'")
+                        write_msg(user_id, "Вы пролистали весь список.\nЧтобы начать заново нажмите: 'Начать сначала.'")
 
                 elif request == 'Начать сначала':
                     next_user = find_user(user_id) # создаем заново генератор
@@ -71,16 +71,22 @@ if __name__ == '__main__':
                     favorite = FavoriteVK(user_id=tmp_id, first_name=tmp_first_name,
                                           last_name=tmp_last_name, link=tmp_link) # создаем объект избранного
                     add_or_del_favorite(user, favorite) # добавляем в бд
-                    write_msg(user_id, "Предложение добавленно в избранные")
+                    write_msg(user_id, "Предложение добавленно/удалено в Ваш список изранных.")
 
                 elif request == "Избранные":
                     message_list = get_favorites(user)
-                    for i, message in enumerate(message_list):
-                        write_msg(user_id, f'{i+1} - {message}')
+                    if message_list:
+                        for i, message in enumerate(message_list):
+                            write_msg(user_id, f'{i+1} - {message}')
+                    else:
+                        write_msg(user_id, 'Ваш список избранных пуст.')
 
                 elif request == "Добавить в черный список":
-                    add_blacklist(user, tmp_id)
-                    write_msg(user_id, "Предложение добавленно в черный список")
+                    if not check_user_in_favorites(user_id, tmp_id):
+                        add_blacklist(user, tmp_id)
+                        write_msg(user_id, "Предложение добавленно в черный список.")
+                    else:
+                        write_msg(user_id, "Данный пользователь у Вас в избранных, сначала удалите его из избранных.")
 
                 elif request.lower() == "пока":
                     write_msg(event.user_id, "Пока((")
