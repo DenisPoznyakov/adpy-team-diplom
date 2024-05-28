@@ -49,9 +49,8 @@ def get_age(user_id):
             year_now = int(datetime.date.today().year)
             age = year_now - year
             return age
-        elif len(date_list) == 2:
-            age = 25
-            return age
+        else:
+            return 25
     return 25
 
 
@@ -83,22 +82,23 @@ def find_user(user_id):
 
 
 def get_user_photos(user_id):
+    """ Получение фото"""
     getting_api_app = vk_app.get_api()
     photo_info = getting_api_app.photos.get(owner_id=user_id, album_id='profile', extended=1)
-    count_photo = photo_info['count'] # количество фото у пользователя
+    count_photo = photo_info['count']  # количество фото у пользователя
     photos_likes_profile = []
-    if count_photo >= 3: # если фото больше или равно 3
+    if count_photo >= 3:  # если фото больше или равно 3
         tmp_list = []
         for item in photo_info['items']:
-            likes = item['likes']['count'] # кол-во лайков
-            photo_id = item['id'] # id фото
+            likes = item['likes']['count']  # кол-во лайков
+            photo_id = item['id']  # id фото
             tmp_list.append([likes, photo_id])
         tmp_list.sort(reverse=True)
         for elem in tmp_list[:3]:
             photos_likes_profile.append(f'photo{user_id}_{elem[1]}')
         return photos_likes_profile
 
-    else: # если фото меньше 3
+    else:  # если фото меньше 3
         for item in photo_info['items']:
             photo_id = item['id']  # id фото
             photos_likes_profile.append(f'photo{user_id}_{photo_id}')
