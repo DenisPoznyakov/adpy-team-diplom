@@ -65,13 +65,24 @@ if __name__ == '__main__':
 
                 elif request == 'Начать сначала':
                     next_user = find_user(user_id)  # создаем заново генератор
-                    write_msg(user_id, "Нажимайте '>>>>>>' для пролистывания предложений для знакомств.")
+                    message = "Нажимайте '>>>>>>' для пролистывания предложений для знакомств."
+                    try:
+                        del tmp_id  # удаляем временную переменную, если она есть
+                        write_msg(user_id, message)
+                    except NameError:
+                        write_msg(user_id, message)
 
                 elif request == "Добавить в избранные":
-                    favorite = FavoriteVK(user_id=tmp_id, first_name=tmp_first_name,
-                                          last_name=tmp_last_name, link=tmp_link)  # создаем объект избранного
-                    add_or_del_favorite(user, favorite)  # добавляем в бд
-                    write_msg(user_id, "Предложение добавленно/удалено в Ваш список изранных.")
+                    try:
+                        if not check_user_in_blacklist(user_id, tmp_id):  # если пользователя нет в черном списке
+                            favorite = FavoriteVK(user_id=tmp_id, first_name=tmp_first_name,
+                                                last_name=tmp_last_name, link=tmp_link)  # создаем объект избранного
+                            add_or_del_favorite(user, favorite)  # добавляем в бд
+                            write_msg(user_id, "Предложение добавленно/удалено в Ваш список изранных.")
+                        else:
+                            write_msg(user_id, f'{tmp_first_name} {tmp_last_name} у Вас в черном списке.')
+                    except NameError:
+                        write_msg(user_id, "У Вас еще нет предложений. Нажмите '>>>>>>'")
 
                 elif request == "Избранные":
                     message_list = get_favorites(user)
@@ -82,11 +93,14 @@ if __name__ == '__main__':
                         write_msg(user_id, 'Ваш список избранных пуст.')
 
                 elif request == "Добавить в черный список":
-                    if not check_user_in_favorites(user_id, tmp_id):
-                        add_blacklist(user, tmp_id)
-                        write_msg(user_id, "Предложение добавленно в черный список.")
-                    else:
-                        write_msg(user_id, "Данный пользователь у Вас в избранных, сначала удалите его из избранных.")
+                    try:
+                        if not check_user_in_favorites(user_id, tmp_id):  # если пользователя нет в избранных
+                            add_blacklist(user, tmp_id)
+                            write_msg(user_id, "Предложение добавленно в черный список.")
+                        else:
+                            write_msg(user_id, "Данный пользователь у Вас в избранных, сначала удалите его из избранных.")
+                    except NameError:
+                        write_msg(user_id, "У Вас еще нет предложений. Нажмите '>>>>>>'")
 
                 elif request.lower() == "пока":
                     write_msg(event.user_id, "Пока((")
