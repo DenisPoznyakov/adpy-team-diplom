@@ -121,3 +121,13 @@ def get_favorites(user):
                          .join(UserFavorites.favorites)
                          .filter(UserFavorites.user_id == user_id).all())
         return all_favorites
+
+
+def del_user(user_id):
+    """Удаление пользователь из БД"""
+    with session() as sess:
+        us_id = sess.query(User.id).filter(User.user_id == user_id).first()[0]
+        sess.query(UserFavorites).filter(UserFavorites.user_id == us_id).delete()
+        sess.query(UserBlackList).filter(UserBlackList.user_id == us_id).delete()
+        sess.query(User).filter(User.user_id == user_id).delete()
+        sess.commit()
