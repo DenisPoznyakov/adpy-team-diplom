@@ -31,10 +31,13 @@ def get_city(user_id):
     """получение кода и названия города"""
     getting_api = vk.get_api()
     info = getting_api.users.get(user_ids=user_id, fields='city')[0]
-    city_title = info['city']['title']
-    city_id = str(info['city']['id'])
-    info_city = [city_id, city_title]
-    return info_city
+    try:
+        city_title = info['city']['title']
+        city_id = str(info['city']['id'])
+        info_city = [city_id, city_title]
+        return info_city
+    except KeyError:
+        return [1, 'Москва']
 
 
 def get_age(user_id):

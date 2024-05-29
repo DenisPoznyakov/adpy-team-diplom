@@ -20,7 +20,8 @@ if __name__ == '__main__':
                                     'keyboard': keyboard.get_keyboard(),
                                     'attachment': ','.join(attachments)})
 
-    next_user = None  # переменная для генератора
+    # next_user = None  # переменная для генератора
+    next_user_dict = {}
 
     for event in longpoll.listen():  # Основной цикл
         if event.type == VkEventType.MESSAGE_NEW:  # Если пришло новое сообщение
@@ -30,8 +31,13 @@ if __name__ == '__main__':
                 user_id = event.user_id  # id пользователя
                 attachments = []  # список для фото
 
-                if not next_user:  # если генератора еще нет, создаем новый
-                    next_user = find_user(user_id)
+                # if not next_user:  # если генератора еще нет, создаем новый
+                #     next_user = find_user(user_id)
+
+                if user_id not in next_user_dict:
+                    next_user_dict[user_id] = find_user(user_id)
+
+                next_user = next_user_dict[user_id]
 
                 if request.lower() in ("привет", "старт"):
                     # получаем данные для объекта user(вообще в бд можно хранить только id, остальное лишняя информация, но пусть будет раз уже написали)
@@ -64,7 +70,10 @@ if __name__ == '__main__':
                         write_msg(user_id, "Вы пролистали весь список.\nЧтобы начать заново нажмите: 'Начать сначала.'")
 
                 elif request == 'Начать сначала':
-                    next_user = find_user(user_id)  # создаем заново генератор
+                    # next_user = find_user(user_id)  # создаем заново генератор
+
+                    next_user_dict[user_id] = find_user(user_id)
+
                     message = "Нажимайте '>>>>>>' для пролистывания предложений для знакомств."
                     try:
                         del tmp_id  # удаляем временную переменную, если она есть
