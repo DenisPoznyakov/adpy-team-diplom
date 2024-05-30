@@ -23,12 +23,12 @@ if __name__ == '__main__':
     next_user_dict = {}
     flag = True
 
-    for event in longpoll.listen():  # Основной цикл
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me:  # Если пришло новое сообщение
+    for event in longpoll.listen():
+        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
 
-            request = event.text  # Сообщение от пользователя
-            user_id = event.user_id  # id пользователя
-            attachments = []  # список для фото
+            request = event.text
+            user_id = event.user_id
+            attachments = []
 
             if request.lower() in ("привет", "старт"):
                 flag = False
@@ -36,19 +36,19 @@ if __name__ == '__main__':
                     next_user_dict[user_id] = find_user(user_id)
 
                 next_user = next_user_dict[user_id]
-                # получаем данные для объекта user(вообще в бд можно хранить только id, остальное лишняя информация, но пусть будет раз уже написали)
+
                 first_name, last_name = get_user_name(user_id)
                 city = get_city(user_id)[1]
                 age = get_age(user_id)
-                user = UserVK(user_id=user_id, first_name=first_name, last_name=last_name, city=city, age=age)  # создаем объект user
-                add_user(user)  # добавляем в бд
+                user = UserVK(user_id=user_id, first_name=first_name, last_name=last_name, city=city, age=age)
+                add_user(user)
 
                 write_msg(user_id, f"{first_name} {last_name}, добро пожаловать в бота для знакомств.\n"
                                    f"Нажимайте '>>>>>>' для пролистывания предложений для знакомств.")
 
-            elif request == "»&gt;":  # кнопка для следующего предложения
+            elif request == "»&gt;":
                 if not flag:
-                    try:  # проверяем, есть ли следующий пользователь
+                    try:
                         tmp_user = next_user.__next__()
 
                         tmp_id = tmp_user[0]
@@ -57,13 +57,13 @@ if __name__ == '__main__':
                         tmp_link = tmp_user[3]
                         tmp_message = f'{tmp_first_name} {tmp_last_name}\nссылка {tmp_link}'
 
-                        if not check_user_in_blacklist(user_id, tmp_id):  # проверяем, нет ли пользователя в черном списке
-                            attachments = get_user_photos(tmp_id)  # формируем список фото
+                        if not check_user_in_blacklist(user_id, tmp_id):
+                            attachments = get_user_photos(tmp_id)
                             write_msg(user_id, tmp_message)
                         else:
                             write_msg(user_id, f'{tmp_first_name} {tmp_last_name} у Вас в черном списке.')
 
-                    except StopIteration:  # если список закончился
+                    except StopIteration:
                         write_msg(user_id, "Вы пролистали весь список.\nЧтобы начать заново нажмите: 'Начать сначала.'")
                 else:
                     write_msg(event.user_id, "Введите 'привет' или 'старт'.")
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
                     message = "Нажимайте '>>>>>>' для пролистывания предложений для знакомств."
                     try:
-                        del tmp_id  # удаляем временную переменную, если она есть
+                        del tmp_id
                         write_msg(user_id, message)
                     except NameError:
                         write_msg(user_id, message)
@@ -85,10 +85,10 @@ if __name__ == '__main__':
             elif request == "Добавить в избранные":
                 if not flag:
                     try:
-                        if not check_user_in_blacklist(user_id, tmp_id):  # если пользователя нет в черном списке
+                        if not check_user_in_blacklist(user_id, tmp_id):
                             favorite = FavoriteVK(user_id=tmp_id, first_name=tmp_first_name,
-                                                last_name=tmp_last_name, link=tmp_link)  # создаем объект избранного
-                            add_or_del_favorite(user, favorite)  # добавляем в бд
+                                                last_name=tmp_last_name, link=tmp_link)
+                            add_or_del_favorite(user, favorite)
                             write_msg(user_id, "Предложение добавленно/удалено в Ваш список изранных.")
                         else:
                             write_msg(user_id, f'{tmp_first_name} {tmp_last_name} у Вас в черном списке.')
@@ -111,11 +111,12 @@ if __name__ == '__main__':
             elif request == "Добавить в черный список":
                 if not flag:
                     try:
-                        if not check_user_in_favorites(user_id, tmp_id):  # если пользователя нет в избранных
+                        if not check_user_in_favorites(user_id, tmp_id):
                             add_blacklist(user, tmp_id)
                             write_msg(user_id, "Предложение добавленно в черный список.")
                         else:
-                            write_msg(user_id, "Данный пользователь у Вас в избранных, сначала удалите его из избранных.")
+                            write_msg(user_id, "Данный пользователь у Вас в избранных, "
+                                               "сначала удалите его из избранных.")
                     except NameError:
                         write_msg(user_id, "У Вас еще нет предложений. Нажмите '>>>>>>'")
                 else:
