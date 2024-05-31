@@ -13,7 +13,7 @@ if __name__ == '__main__':
     create_tables()
 
     def write_msg(us_id, msg):
-        """метод отправки сообщений"""
+        """функция отправки сообщений"""
         vk.method('messages.send', {'user_id': us_id,
                                     'message': msg,
                                     'random_id': randrange(10 ** 7),

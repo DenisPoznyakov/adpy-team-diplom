@@ -20,7 +20,7 @@ def find_sex(user_id):
     """получения пола и замены его на противоположный"""
     getting_api = vk.get_api()
     info = getting_api.users.get(user_ids=user_id, fields='sex')[0]
-    sex = int(info['sex'])  # 1-женский, 2-мужской, 0-не указан
+    sex = int(info['sex'])
     if sex == 1:
         return 2
     elif sex == 2:
@@ -88,21 +88,21 @@ def get_user_photos(user_id):
     """ Получение фото"""
     getting_api_app = vk_app.get_api()
     photo_info = getting_api_app.photos.get(owner_id=user_id, album_id='profile', extended=1)
-    count_photo = photo_info['count']  # количество фото у пользователя
+    count_photo = photo_info['count']
     photos_likes_profile = []
-    if count_photo >= 3:  # если фото больше или равно 3
+    if count_photo >= 3:
         tmp_list = []
         for item in photo_info['items']:
-            likes = item['likes']['count']  # кол-во лайков
-            photo_id = item['id']  # id фото
+            likes = item['likes']['count']
+            photo_id = item['id']
             tmp_list.append([likes, photo_id])
         tmp_list.sort(reverse=True)
         for elem in tmp_list[:3]:
             photos_likes_profile.append(f'photo{user_id}_{elem[1]}')
         return photos_likes_profile
 
-    else:  # если фото меньше 3
+    else:
         for item in photo_info['items']:
-            photo_id = item['id']  # id фото
+            photo_id = item['id']
             photos_likes_profile.append(f'photo{user_id}_{photo_id}')
         return photos_likes_profile
